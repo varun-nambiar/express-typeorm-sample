@@ -5,13 +5,21 @@ export default class Users extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column()
+  @Column({
+    length: 100
+  })
   first_name: string
 
-  @Column()
+
+  @Column({
+    length: 100
+  })
   last_name: string
 
-  @Column()
+
+  @Column({
+    length: 300
+  })
   email: string
 
   /**

@@ -1,4 +1,5 @@
 import express from 'express'
+import os from 'os'
 import { DataSource } from 'typeorm'
 
 import dotenv from 'dotenv'
@@ -7,18 +8,24 @@ dotenv.config()
 
 const connection = new DataSource({
   // mysql example
-  type: "mysql",
-  host: process.env.MYSQL_HOST,
-  port: +process.env.MYSQL_PORT,
-  username: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASS,
-  database: process.env.MYSQL_DB,
+  // type: "mysql",
+  // host: process.env.MYSQL_HOST,
+  // port: +process.env.MYSQL_PORT,
+  // username: process.env.MYSQL_USER,
+  // password: process.env.MYSQL_PASS,
+  // database: process.env.MYSQL_DB,
+
+  // sqlite example
+  type: 'sqlite',
+  database: os.tmpdir() + '/test_db',
 
   logging: ["query", "schema", "error", "warn", "log", "migration"],
   entities: [
     __dirname + "/entity/*.ts",
     __dirname + "/entity/*.js"
   ],
+
+  synchronize: true, // ONLY for LOCAL DEV/TESTING
 })
 
 connection.initialize().then(() => {
