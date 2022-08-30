@@ -1,10 +1,15 @@
 import express from 'express'
-import os from 'os'
+// import os from 'os' 
 import { DataSource } from 'typeorm'
+import oracle from 'oracledb';
 
 import dotenv from 'dotenv'
 import Users from './entity/Users'
 dotenv.config()
+
+oracle.initOracleClient({
+  libDir: process.env.ORACLE_INSTALL_CLIENT_DIR
+})
 
 const connection = new DataSource({
   // mysql example
@@ -16,8 +21,16 @@ const connection = new DataSource({
   // database: process.env.MYSQL_DB,
 
   // sqlite example
-  type: 'sqlite',
-  database: os.tmpdir() + '/test_db',
+  // type: 'sqlite',
+  // database: os.tmpdir() + '/test_db',
+
+  type: "oracle",
+  host: process.env.ORACLE_HOST,
+  port: +(process.env.ORACLE_PORT || 0),
+  username: process.env.ORACLE_USER,
+  password: process.env.ORACLE_PASS,
+  database: process.env.ORACLE_DB,
+  connectString: process.env.ORACLE_CONNECTION_STRING,
 
   logging: ["query", "schema", "error", "warn", "log", "migration"],
   entities: [
@@ -37,8 +50,8 @@ connection.initialize().then(() => {
 const app = express()
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-const port = process.env.PORT ? +process.env.PORT : 3000;
-app.listen(port, '0.0.0.0', () => {
+const port = process.env.PORT ? +(process.env.PORT || 3000) : 3000;
+app.listen(port, () => {
   console.log(`Server up at http://localhost:${port}`);
 })
 
