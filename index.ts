@@ -5,6 +5,7 @@ import oracle from 'oracledb';
 
 import dotenv from 'dotenv'
 import Users from './entity/Users'
+import CfgUsers from './entity/CfgUsers'
 dotenv.config()
 
 oracle.initOracleClient({
@@ -31,6 +32,7 @@ const connection = new DataSource({
   password: process.env.ORACLE_PASS,
   database: process.env.ORACLE_DB,
   connectString: process.env.ORACLE_CONNECTION_STRING,
+  sid: process.env.ORACLE_DB,
 
   logging: ["query", "schema", "error", "warn", "log", "migration"],
   entities: [
@@ -38,7 +40,7 @@ const connection = new DataSource({
     __dirname + "/entity/*.js"
   ],
 
-  synchronize: true, // ONLY for LOCAL DEV/TESTING
+  // synchronize: true, // ONLY for LOCAL DEV/TESTING
 })
 
 connection.initialize().then(() => {
@@ -55,8 +57,17 @@ app.listen(port, () => {
   console.log(`Server up at http://localhost:${port}`);
 })
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
+
+  const someUsersByQuery = await connection.query("SELECT * FROM cfg_users WHERE ROWNUM <= 2");
+  const someUser = CfgUsers.findOne({
+    where: {
+      USER_NAME: 'admin'
+    }
+  })
   return res.json({
+    someUsersByQuery,
+    someUser,
     message: 'Hello World',
     ip: req.ip,
     browser: req.headers['user-agent']
